@@ -144,6 +144,11 @@
   .oppo-hand{
     position:absolute;display:flex;gap:-20px;pointer-events:none;align-items:center;
   }
+  .oppo-hand[data-pos="seat-top"]{top:96px;left:50%;transform:translateX(-50%)}
+  .oppo-hand[data-pos="seat-left"]{top:50%;left:110px;transform:translateY(-50%)}
+  .oppo-hand[data-pos="seat-right"]{top:50%;right:110px;transform:translateY(-50%)}
+  .oppo-hand[data-pos="seat-tl"]{top:150px;left:24%}
+  .oppo-hand[data-pos="seat-tr"]{top:150px;right:24%}
   .oppo-card{
     width:32px;height:46px;border-radius:4px;
     background: linear-gradient(135deg,#b9302c 0%, #821f1c 100%);
@@ -367,8 +372,10 @@
     display:flex;gap:14px;align-items:center;
     background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);
     border-radius:14px;padding:10px 16px;backdrop-filter: blur(8px);
+    z-index:20;
   }
-  .hint{font-size:12px;opacity:.8;max-width:260px;line-height:1.4}
+  .controls-btns{display:flex;gap:14px;align-items:center}
+  .hint{font-size:12px;opacity:.85;max-width:260px;line-height:1.4}
   .hint.bad{color:#ff9696}
   .hint.good{color:#9effc0}
 
@@ -437,73 +444,123 @@
     .card .center{font-size:28px}
     .title{font-size:64px}
   }
-  /* Phone portrait */
+  /* Phone portrait — full redesign */
   @media (max-width: 640px){
-    .title{font-size:42px;letter-spacing:6px}
-    .subtitle{font-size:12px;margin-bottom:20px}
+    /* Title screen */
+    .title{font-size:48px;letter-spacing:8px}
+    .subtitle{font-size:12px;margin-bottom:16px}
     .panel{min-width:auto;width:94vw;padding:14px 16px}
-    .panel h3{font-size:13px;margin-bottom:6px}
+    .panel h3{font-size:13px;margin:8px 0 6px}
     .pill{padding:7px 12px;font-size:12px}
-    .btn-primary{padding:12px 32px;font-size:16px}
+    .btn-primary{padding:13px 32px;font-size:16px;letter-spacing:6px}
 
-    .felt{width:98vw;height:92vh;border-radius:40%/40%}
-    .avatar{width:44px;height:44px;font-size:22px;border-width:2px}
-    .avatar.dealer::after{width:18px;height:18px;font-size:9px}
+    /* Full-screen felt */
+    .felt{
+      width:100vw;height:100vh;
+      top:0;left:0;transform:none;
+      border-radius:0;
+      background: radial-gradient(ellipse at center, #1a7a55 0%, #0a4a33 70%, #052a1d 100%);
+      box-shadow:none;
+    }
+
+    /* Topbar */
+    .topbar{left:6px;right:6px;top:8px}
+    .info{font-size:11px;padding:5px 10px;gap:8px}
+    .btn-ghost{padding:7px 12px;font-size:13px}
+
+    /* Seats — smaller avatars, anchored to corners */
+    .avatar{width:48px;height:48px;font-size:24px;border-width:2px}
+    .avatar.dealer::after{width:18px;height:18px;font-size:9px;bottom:-3px;right:-3px}
     .name{font-size:11px}
     .meta{font-size:10px}
     .cards-count{font-size:10px;padding:2px 8px}
+    .seat-top{top:54px}
+    .seat-bottom{display:none}  /* self seat hidden — hand is the indicator */
+    .seat-left{left:6px;top:36%}
+    .seat-right{right:6px;top:36%}
+    .seat-tl{left:4%;top:56px}
+    .seat-tr{right:4%;top:56px}
 
-    .seat-top{top:10px}
-    .seat-bottom{bottom:8px}
-    .seat-left{left:8px}
-    .seat-right{right:8px}
-    .seat-tl{left:10%;top:48px}
-    .seat-tr{right:10%;top:48px}
-
+    /* Opponent card-backs + played cards positioned right next to their avatars */
     .oppo-card{width:20px;height:28px;margin-left:-14px;border-width:1px}
-    .seat-face{width:28px;height:40px;font-size:10px;padding:2px 3px}
-    .seat-face .r{font-size:10px}
-    .seat-face .s{font-size:8px}
+    .seat-face{width:30px;height:42px;font-size:11px;padding:2px 3px;margin-left:-8px}
+    .seat-gap + .seat-face{margin-left:0}
+    .seat-face .r{font-size:11px}
+    .seat-face .s{font-size:9px}
     .seat-gap{width:10px}
     .pass-label{padding:3px 10px;font-size:11px;letter-spacing:2px;border-width:1.5px}
 
-    /* hide log panel on small screens to save room */
+    .oppo-hand[data-pos="seat-top"]{top:112px}
+    .oppo-hand[data-pos="seat-left"]{top:36%;left:10px;margin-top:50px}
+    .oppo-hand[data-pos="seat-right"]{top:36%;right:10px;margin-top:50px}
+    .oppo-hand[data-pos="seat-tl"]{top:118px;left:4%}
+    .oppo-hand[data-pos="seat-tr"]{top:118px;right:4%}
+
+    /* Hide side log panel — no room */
     .trick-log{display:none}
-    .topbar{left:6px;right:6px;top:6px}
-    .info{font-size:11px;padding:5px 8px;gap:8px}
 
-    .my-hand{bottom:80px;padding:0 8px;height:120px;max-width:100vw}
-    .card{width:44px;height:64px;margin-left:-22px;padding:3px 4px;border-radius:5px}
-    .card .corner .r{font-size:12px}
-    .card .corner .s{font-size:10px}
-    .card .center{font-size:20px}
+    /* My hand — plenty bigger so user can read */
+    .my-hand{
+      bottom:118px;
+      padding:0 8px;
+      height:140px;
+      max-width:100vw;
+      overflow-x:auto;overflow-y:visible;
+    }
+    .card{
+      width:54px;height:78px;
+      margin-left:-30px;
+      padding:3px 4px;border-radius:6px;
+    }
+    .card:first-child{margin-left:0}
+    .card .corner .r{font-size:14px}
+    .card .corner .s{font-size:11px}
+    .card .center{font-size:24px}
     .card .br{display:none}
-    .card.joker .center{font-size:10px}
-    .card:hover{transform:translateY(-10px) scale(1.02)}
-    .card.selected{transform:translateY(-16px) scale(1.04)}
+    .card.joker .center{font-size:11px}
+    .card:hover{transform:translateY(-8px) scale(1.02)}
+    .card.selected{transform:translateY(-18px) scale(1.04)}
 
-    .self-action{bottom:150px}
+    /* Self-action (your pass / played cards) above hand */
+    .self-action{bottom:200px}
 
-    .controls{padding:6px 8px;gap:6px;bottom:10px;border-radius:10px}
-    .btn-ghost{padding:7px 12px;font-size:12px}
-    .hint{font-size:11px;max-width:180px}
+    /* Controls: two-row layout — hint on top, full-width button row below */
+    .controls{
+      left:4px;right:4px;bottom:8px;
+      transform:none;
+      flex-direction:column;
+      align-items:stretch;
+      padding:8px 10px;gap:6px;
+      border-radius:12px;
+      background:rgba(0,0,0,.55);
+    }
+    .controls .hint{
+      font-size:11px;max-width:none;text-align:center;
+      white-space:normal;line-height:1.3;
+      padding:0 2px;
+    }
+    .controls-btns{display:flex;gap:6px;width:100%}
+    .controls-btns .btn-ghost{flex:1;padding:10px 4px;font-size:13px;min-width:0;white-space:nowrap}
 
-    .trick-label{font-size:11px;padding:3px 10px}
+    /* Trick label in center */
+    .trick{top:44%}
+    .trick-label{font-size:11px;padding:3px 10px;letter-spacing:1px}
 
-    .dice-tray{max-width:92vw;gap:8px}
-    .die{width:54px;height:54px;font-size:32px;border-radius:10px}
+    .dice-tray{max-width:94vw;gap:8px}
+    .die{width:54px;height:54px;font-size:30px;border-radius:10px}
 
-    .result{min-width:auto;width:90vw;padding:18px 22px}
+    .result{min-width:auto;width:92vw;padding:18px 22px}
     .result h2{font-size:18px;letter-spacing:3px}
     .score-row{font-size:13px;padding:7px 0}
   }
-  /* Phone landscape (short height) */
-  @media (max-height: 500px){
-    .my-hand{bottom:58px;height:100px}
+  /* Phone landscape */
+  @media (max-height: 500px) and (max-width:900px){
+    .felt{width:100vw;height:100vh;top:0;left:0;transform:none;border-radius:0}
+    .my-hand{bottom:84px;height:110px}
+    .card{width:46px;height:66px;margin-left:-22px}
+    .card .center{font-size:20px}
     .controls{bottom:6px}
     .topbar{top:4px}
-    .card{width:44px;height:64px;margin-left:-22px}
-    .card .center{font-size:20px}
   }
 </style>
 </head>
@@ -603,11 +660,13 @@
     <div class="my-hand" id="myHand"></div>
 
     <div class="controls" id="controls">
-      <button class="btn-ghost" id="playBtn">出牌</button>
-      <button class="btn-ghost" id="passBtn">过牌</button>
-      <button class="btn-ghost" id="hintBtn">💡 提示</button>
-      <button class="btn-ghost" id="sortBtn">整理</button>
       <div class="hint" id="hint">选择你的出牌</div>
+      <div class="controls-btns">
+        <button class="btn-ghost" id="playBtn">出牌</button>
+        <button class="btn-ghost" id="passBtn">过牌</button>
+        <button class="btn-ghost" id="hintBtn">💡 提示</button>
+        <button class="btn-ghost" id="sortBtn">整理</button>
+      </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -1342,15 +1401,7 @@ function renderOpponentHands(){
     const row = document.createElement('div');
     row.className = 'oppo-hand';
     row.dataset.pos = pos;
-    const anchors = {
-      'seat-top':{top:'96px', left:'50%', transform:'translateX(-50%)'},
-      'seat-left':{top:'50%', left:'110px', transform:'translateY(-50%)'},
-      'seat-right':{top:'50%', right:'110px', transform:'translateY(-50%)'},
-      'seat-tl':{top:'150px', left:'24%'},
-      'seat-tr':{top:'150px', right:'24%'},
-    };
-    const style = anchors[pos];
-    if(style) Object.assign(row.style, style);
+    // positioning handled by CSS via [data-pos=...] so media queries can override
 
     // card-backs for remaining hand (capped visual)
     const count = Math.min(p.hand.length, 10);
