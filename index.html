@@ -314,6 +314,9 @@
     margin-left:-28px;
     cursor:pointer;
     will-change: transform;
+    flex-shrink:0;  /* critical on mobile — prevent flex container from squeezing cards */
+    flex-grow:0;
+    flex-basis:auto;
   }
   .card:first-child{margin-left:0}
   .card.red{color:var(--red)}
@@ -499,27 +502,33 @@
     /* Hide side log panel — no room */
     .trick-log{display:none}
 
-    /* My hand — plenty bigger so user can read */
+    /* My hand — readable spread, scroll if too many */
     .my-hand{
       bottom:118px;
-      padding:0 8px;
+      padding:0 10px;
       height:140px;
       max-width:100vw;
       overflow-x:auto;overflow-y:visible;
+      -webkit-overflow-scrolling:touch;
+      justify-content:center;
+      scrollbar-width:none;
     }
+    .my-hand::-webkit-scrollbar{display:none}
     .card{
-      width:54px;height:78px;
-      margin-left:-30px;
-      padding:3px 4px;border-radius:6px;
+      width:56px;height:80px;
+      min-width:56px;  /* hard-lock width so flex can't squeeze */
+      margin-left:-20px;  /* moderate overlap — each card shows ~36px rank */
+      padding:3px 5px;border-radius:6px;
     }
     .card:first-child{margin-left:0}
-    .card .corner .r{font-size:14px}
-    .card .corner .s{font-size:11px}
-    .card .center{font-size:24px}
+    .card .corner{display:flex;flex-direction:column;align-items:flex-start}
+    .card .corner .r{font-size:15px}
+    .card .corner .s{font-size:12px}
+    .card .center{font-size:26px}
     .card .br{display:none}
     .card.joker .center{font-size:11px}
     .card:hover{transform:translateY(-8px) scale(1.02)}
-    .card.selected{transform:translateY(-18px) scale(1.04)}
+    .card.selected{transform:translateY(-18px) scale(1.05)}
 
     /* Self-action (your pass / played cards) above hand */
     .self-action{bottom:200px}
@@ -1779,6 +1788,7 @@ function rollDice(){
 let audioCtx = null;
 let bgmTimer = null;
 let bgmGain = null;
+let audioUnlocked = false;
 function initAudio(){
   if(!audioCtx){
     try {
@@ -1789,11 +1799,40 @@ function initAudio(){
     }
     catch(e){ audioCtx=null; }
   }
-  // On many browsers the context starts suspended until a user gesture
   if(audioCtx && audioCtx.state === 'suspended'){
     audioCtx.resume();
   }
+  // iOS / WeChat WebView need a synchronous oscillator call inside the user
+  // gesture to fully unlock audio. Play a muted pop to bootstrap.
+  if(audioCtx && !audioUnlocked){
+    try{
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(0); o.stop(audioCtx.currentTime + 0.02);
+      audioUnlocked = true;
+    }catch(e){}
+  }
+  // Also kick speechSynthesis awake (iOS needs a speak() call inside gesture)
+  if('speechSynthesis' in window && !window._speechUnlocked){
+    try{
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0; u.rate = 1; u.lang='zh-CN';
+      window.speechSynthesis.speak(u);
+      window._speechUnlocked = true;
+    }catch(e){}
+  }
 }
+
+// Any tap after load also resumes context — covers the case where audio was
+// not unlocked by the startBtn gesture (e.g. returning from background).
+document.addEventListener('touchstart', ()=>{
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+}, {passive:true, capture:true});
+document.addEventListener('click', ()=>{
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+}, {passive:true, capture:true});
 
 /* ----- BGM: mellow piano-like loop + soft pad ----- */
 function startBGM(){
